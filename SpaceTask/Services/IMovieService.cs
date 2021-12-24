@@ -11,12 +11,12 @@ namespace SpaceTask.Services
 {
     public interface IMovieService
     {
-        ResponseModel AddUser(AddUserRequest movie);
-        ResponseModel AddMovie(Movies movie);
-        ResponseModel AddWatchList(AddWatchlistRequest watchlist);
-        ResponseModel UpdateIsWatched(UpdateMovieWatchedRequest movie);
-        Users GetUserById(GetUserByIdRequest movie);
-        Movies GetMovieDetailsById(GetMovieDetailsByIdRequest movie);
+        Task<ResponseModel> AddUser(AddUserRequest movie);
+        Task<ResponseModel> AddMovie(Movies movie);
+        Task<ResponseModel> AddWatchList(AddWatchlistRequest watchlist);
+        Task<ResponseModel> UpdateIsWatched(UpdateMovieWatchedRequest movie);
+        Task<Users> GetUserById(GetUserByIdRequest movie);
+        Task<Movies>  GetMovieDetailsById(GetMovieDetailsByIdRequest movie);
         List<GetUnWatchedMoviesJobRespose> GetUnWatchedMoviesList();
     }
 }

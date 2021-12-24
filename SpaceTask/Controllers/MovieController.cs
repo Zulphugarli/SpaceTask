@@ -7,6 +7,7 @@ using SpaceTask.Model.Response;
 using SpaceTask.Model.ViewModel;
 using SpaceTask.Services;
 using System;
+using System.Threading.Tasks;
 
 namespace SpaceTask.Controllers
 {
@@ -23,11 +24,11 @@ namespace SpaceTask.Controllers
         }
 
         [HttpPut, Route("addUser")]
-        public IActionResult addUser([FromQuery] AddUserRequest request)
+        public async Task<ActionResult<ResponseModel>> AddUser([FromQuery] AddUserRequest request)
         {
             try
             {
-                var addUser = _movieService.AddUser(request);
+                var addUser = await _movieService.AddUser(request);
                 if (addUser == null)
                     return NotFound();
                 return Ok(addUser);
@@ -39,13 +40,11 @@ namespace SpaceTask.Controllers
         }
 
         [HttpPut, Route("addMovie")]
-        public IActionResult addMovie([FromQuery] AddMovieRequest request)
+        public async Task<ActionResult<ResponseModel>> addMovie([FromQuery] AddMovieRequest request)
         {
             try
             {
-
                 string url = _configuration.GetValue<string>("ImdbApiSearchUrl");
-                //Inception: 4Movie Premiere Special
                 Movies movie = new Movies();
                 var responseJson = Helper.Request.HttpRequest(url + request.MovieName);
                 SearchResponse response = JsonConvert.DeserializeObject<SearchResponse>(responseJson);
@@ -59,7 +58,7 @@ namespace SpaceTask.Controllers
                 movie.MovieId = response.Results[0].Id;
                 movie.FilmName = response.Results[0].Title;
                 movie.Description = response.Results[0].Description;
-                var saveResponse = _movieService.AddMovie(movie);
+                var saveResponse =await _movieService.AddMovie(movie);
                 if (response == null)
                     return NotFound();
                 return Ok(saveResponse);
@@ -71,13 +70,13 @@ namespace SpaceTask.Controllers
         }
 
         [HttpPut, Route("addWatchlist")]
-        public IActionResult AddWatchlist([FromQuery] AddWatchlistRequest request)
+        public async Task<ActionResult<ResponseModel>> AddWatchlist([FromQuery] AddWatchlistRequest request)
         {
             ResponseModel response = new ResponseModel();
             try
             {
                 GetUserByIdRequest user = new GetUserByIdRequest { UserId = request.UserId };
-                var getUser = _movieService.GetUserById(user);
+                var getUser = await _movieService.GetUserById(user);
                 if (getUser == null)
                 {
                     response.IsSuccess = false;
@@ -87,7 +86,7 @@ namespace SpaceTask.Controllers
                 else
                 {
                     GetMovieDetailsByIdRequest movie = new GetMovieDetailsByIdRequest { Id = request.MovieId };
-                    var getMovie = _movieService.GetMovieDetailsById(movie);
+                    var getMovie = await _movieService.GetMovieDetailsById(movie);
                     if (getMovie == null)
                     {
                         response.IsSuccess = false;
@@ -95,7 +94,7 @@ namespace SpaceTask.Controllers
                         return Ok(response);
                     }
                 }
-                var addWatchList = _movieService.AddWatchList(request);
+                var addWatchList = await _movieService.AddWatchList(request);
                 response.IsSuccess = true;
                 response.Messsage = "Sucessfully added";
                 return Ok(response);
@@ -107,13 +106,13 @@ namespace SpaceTask.Controllers
         }
 
         [HttpPut, Route("updateMovieWatched")]
-        public IActionResult UpdateMovieWatched([FromQuery] UpdateMovieWatchedRequest request)
+        public async Task<ActionResult<ResponseModel>> UpdateMovieWatched([FromQuery] UpdateMovieWatchedRequest request)
         {
             ResponseModel response = new ResponseModel();
             try
             {
                 GetUserByIdRequest user = new GetUserByIdRequest { UserId = request.UserId };
-                var getUser = _movieService.GetUserById(user);
+                var getUser =await _movieService.GetUserById(user);
                 if (getUser == null)
                 {
                     response.IsSuccess = false;
@@ -123,7 +122,7 @@ namespace SpaceTask.Controllers
                 else
                 {
                     GetMovieDetailsByIdRequest movie = new GetMovieDetailsByIdRequest { Id = request.MovieId };
-                    var getMovie = _movieService.GetMovieDetailsById(movie);
+                    var getMovie =await _movieService.GetMovieDetailsById(movie);
                     if (getMovie == null)
                     {
                         response.IsSuccess = false;
@@ -133,10 +132,10 @@ namespace SpaceTask.Controllers
                 }
 
 
-                var getUserList = _movieService.UpdateIsWatched(request);
-                if (getUserList == null)
+                var responseUpdate =await _movieService.UpdateIsWatched(request);
+                if (responseUpdate == null)
                     return NotFound();
-                return Ok(getUserList);
+                return Ok(responseUpdate);
             }
             catch (Exception)
             {
@@ -165,10 +164,8 @@ namespace SpaceTask.Controllers
         [HttpGet, Route("posters")]
         public IActionResult Posters([FromQuery] PosterRequest request)
         {
-
             try
             {
-                //tt1375666
                 string url = _configuration.GetValue<string>("ImdbApiPosterUrl");
                 var responseJson = Helper.Request.HttpRequest(url + request.Id);
                 var response = JsonConvert.DeserializeObject<PostersResponse>(responseJson);
@@ -187,7 +184,6 @@ namespace SpaceTask.Controllers
         {
             try
             {
-                //tt1375666
                 string url = _configuration.GetValue<string>("ImdbApiWikipediarUrl");
                 var responseJson = Helper.Request.HttpRequest(url + request.Id);
                 var response = JsonConvert.DeserializeObject<WikipediaResponse>(responseJson);
@@ -206,7 +202,6 @@ namespace SpaceTask.Controllers
         {
             try
             {
-                //tt1375666
                 string url = _configuration.GetValue<string>("ImdbApiTitleUrl");
                 var responseJson = Helper.Request.HttpRequest(url + request.Id);
                 var response = JsonConvert.DeserializeObject<TitleResponse>(responseJson);

@@ -1,4 +1,5 @@
-﻿using Microsoft.Extensions.Configuration;
+﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Configuration;
 using SpaceTask.Model.Database;
 using SpaceTask.Model.Request;
 using SpaceTask.Model.Response;
@@ -24,7 +25,7 @@ namespace SpaceTask.Services
             _configuration = iConfig;
             _context = new MovieContext(iConfig);
         }
-        public ResponseModel AddUser(AddUserRequest userRequest)
+        public async Task<ResponseModel> AddUser(AddUserRequest userRequest)
         {
             Users user = new Users();
             ResponseModel model = new ResponseModel();
@@ -33,9 +34,9 @@ namespace SpaceTask.Services
                 user.Email = userRequest.Email;
                 user.MobilePhone = userRequest.MobilePhone;
                 user.Username = userRequest.Username;
-                _context.Add<Users>(user);
+                await _context.AddAsync<Users>(user);
                 model.Messsage = "User Inserted Successfully";
-                _context.SaveChanges();
+                await _context.SaveChangesAsync();
                 model.IsSuccess = true;
             }
             catch (Exception ex)
@@ -45,7 +46,7 @@ namespace SpaceTask.Services
             }
             return model;
         }
-        public ResponseModel AddWatchList(AddWatchlistRequest watchListRequest)
+        public async Task<ResponseModel> AddWatchList(AddWatchlistRequest watchListRequest)
         {
             Watchlists watchlists = new Watchlists();
             ResponseModel model = new ResponseModel();
@@ -54,9 +55,9 @@ namespace SpaceTask.Services
                 watchlists.MovieId = watchListRequest.MovieId;
                 watchlists.UserId = watchListRequest.UserId;
                 watchlists.IsWatched = watchListRequest.IsWatched;
-                _context.Add<Watchlists>(watchlists);
+                await _context.AddAsync<Watchlists>(watchlists);
                 model.Messsage = "Watchlists Inserted Successfully";
-                _context.SaveChanges();
+                await _context.SaveChangesAsync();
                 model.IsSuccess = true;
             }
             catch (Exception ex)
@@ -66,14 +67,14 @@ namespace SpaceTask.Services
             }
             return model;
         }
-        public ResponseModel AddMovie(Movies movie)
+        public async Task<ResponseModel> AddMovie(Movies movie)
         {    
             ResponseModel model = new ResponseModel();
             try
             {
-                _context.Add<Movies>(movie);
+                await _context.AddAsync<Movies>(movie);
                 model.Messsage = "Movie Inserted Successfully";
-                _context.SaveChanges();
+                await _context.SaveChangesAsync();
                 model.IsSuccess = true;
             }
             catch (Exception ex)
@@ -83,7 +84,7 @@ namespace SpaceTask.Services
             }
             return model;
         }
-        public ResponseModel UpdateIsWatched(UpdateMovieWatchedRequest request)
+        public async Task<ResponseModel> UpdateIsWatched(UpdateMovieWatchedRequest request)
         {
             ResponseModel model = new ResponseModel();
 
@@ -93,7 +94,7 @@ namespace SpaceTask.Services
                                 where x.MovieId == request.MovieId && x.UserId == request.UserId
                                 select x).First();
                 c.IsWatched = request.IsWatched;
-                _context.SaveChanges();
+                await _context.SaveChangesAsync();
                 model.IsSuccess = true;
                 model.Messsage = "WatchList Update Successfully";
             }
@@ -104,12 +105,12 @@ namespace SpaceTask.Services
             }
             return model;
         }
-        public Users GetUserById(GetUserByIdRequest request)
+        public async Task<Users>  GetUserById(GetUserByIdRequest request)
         {
             Users user = new Users();
             try
             {
-                user = _context.Users.FirstOrDefault(x => x.Id == request.UserId);
+                user = await _context.Users.FirstOrDefaultAsync(x => x.Id == request.UserId);
             }
             catch (Exception ex)
             {
@@ -118,12 +119,12 @@ namespace SpaceTask.Services
             return user;
 
         }     
-        public Movies GetMovieDetailsById(GetMovieDetailsByIdRequest request)
+        public async Task<Movies> GetMovieDetailsById(GetMovieDetailsByIdRequest request)
         {
             Movies movie = new Movies();
             try
             {
-                movie = _context.Movies.FirstOrDefault(x => x.Id == request.Id );
+                movie =await _context.Movies.FirstOrDefaultAsync(x => x.Id == request.Id );
             }
             catch (Exception)
             {

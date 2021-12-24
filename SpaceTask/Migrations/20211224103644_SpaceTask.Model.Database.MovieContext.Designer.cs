@@ -9,7 +9,7 @@ using SpaceTask.Model.Database;
 namespace SpaceTask.Migrations
 {
     [DbContext(typeof(MovieContext))]
-    [Migration("20211224100143_SpaceTask.Model.Database.MovieContext")]
+    [Migration("20211224103644_SpaceTask.Model.Database.MovieContext")]
     partial class SpaceTaskModelDatabaseMovieContext
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
